@@ -1,3 +1,34 @@
+
+// required bitcore.js libraries to interact with blockchain //
+bitcore = require('bitcore-lib');
+Mnemonic = require('bitcore-mnemonic');
+buffer = bitcore.util.buffer;
+// Buffer = require('buffer');
+
+// List of global variables declared and Console toggle can be achieved by changing the value of CONSOLE_DEBUG to either true or false //
+
+var CONSOLE_DEBUG = false;
+var privkey1;
+var pubaddr;
+var pubkey1;
+var net = localStorage.getItem("network");
+var Bal;
+pubaddr = localStorage.getItem("pubaddr");
+var mainNetAddr;
+var testNetAddr;
+var address_pubkeyhash_version;
+var address_checksum_value;
+var private_key_version;
+wordListLang = 'ENGLISH';
+entropyLength = 256;
+password = '';
+var seed;
+var MnemonicsArray;
+
+
+
+
+
 function generateBip39BBITWallet(password, wordListLang, entropyLength,
     address_pubkeyhash_version, address_checksum_value,
     private_key_version) {
@@ -82,4 +113,3 @@ function restoreBip39BBITWallet(codeStr, password = '', address_pubkeyhash_versi
     };
 
     return BBITWallet;
-}
