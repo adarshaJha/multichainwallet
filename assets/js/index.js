@@ -1,16 +1,20 @@
 
-// required bitcore.js libraries to interact with blockchain //
-    bitcore = require('bitcore-lib');
-    Mnemonic = require('bitcore-mnemonic');
-    buffer = bitcore.util.buffer;
-    // Buffer = require('buffer');
+// // required bitcore.js libraries to interact with blockchain //
+//     bitcore = require('bitcore-lib');
+//     Mnemonic = require('bitcore-mnemonic');
+//     buffer = bitcore.util.buffer;
+//     // Buffer = require('buffer');
 
 // List of global variables declared and Console toggle can be achieved by changing the value of CONSOLE_DEBUG to either true or false //
+
 
 var CONSOLE_DEBUG = false;
 var privkey1;
 var pubaddr;
 var pubkey1;
+var publicKey;
+var redeemScript;
+var publicAddress;
 var net = localStorage.getItem("network");
 var Bal;
 pubaddr = localStorage.getItem("pubaddr");
@@ -24,111 +28,238 @@ entropyLength = 256;
 password = '';
 var seed;
 var MnemonicsArray;
+var isvalid;
+var hex;
+var decodedvout;
+var txid;
+var scriptHash;
+var finaltxid;
+var privateKey;
+
+$('Document').ready(function(){
+
+    addressGenrationScript();
+    sendTransaction();
+
+});
 
 
-$(Document).ready(function(){
-
+function addressGenrationScript(){
     $('#createKeyPairsBtn').click(function(){
-        jQuery.ajax({
+        $.ajax({
             type: "POST",
+            // url: "/assets"
             url: 'assets/api/createkeypairs.php',
             data: ({
                
             }),
             success: function(Response) {
                 var x = Response;
+                console.log(x); 
                 x = JSON.parse(x);
-               alert(x);
-               
-    
+                publicKey = x.result[0].pubkey;
+                publicAddress = x.result[0].address;
+
+                importAddress(publicAddress);
+
+                
+                createmultisig();
+                          
             }
         });
     });
-});
+}
+
+
+function createmultisig(){
+    $.ajax({
+        type: "POST",
+        // url: "/assets"
+        url: 'assets/api/createmultisig.php',
+        data: ({
+           publicKey:publicKey
+        }),
+        success: function(Response) {
+            publicAddress = Response;
+            publicAddress = JSON.parse(publicAddress);
+            publicAddress = publicAddress.result.address;
+          
+            console.log(publicAddress, "outscope"); 
+            localStorage.setItem("publicAddress", publicAddress);
+            
+            importAddress(publicAddress);
+
+            validateAddress();
+                      
+        }
+    });   
+    
+}
 
 
 
-function generateBip39BBITWallet(password, wordListLang, entropyLength,
-    address_pubkeyhash_version, address_checksum_value,
-    private_key_version) {
-
-    const wordList = eval('Mnemonic.Words.' + wordListLang);
-    var code = new Mnemonic(entropyLength, wordList);
-
-    var xprivKey = code.toHDPrivateKey(password); // using a passphrase
-    var masterPrivateKey = xprivKey.privateKey.toString();
-
-    BBITPublicAddress = createBBITAddressFromPrivateKey(masterPrivateKey, address_pubkeyhash_version, address_checksum_value);
-    BBITPrivateKey = createBBITPrivateKeyFromPrivateKey(masterPrivateKey, private_key_version, address_checksum_value);
-
-    CONSOLE_DEBUG && console.log("final publickey hex pkh1: ", PublicKeyString);
-    // var pkh = bitcore.PublicKey.fromString(PublicKeyString);
-    // CONSOLE_DEBUG && console.log("final publickey hex pkh: ", pkh);
-
-
-    var xrkWallet = {
-        "status": "success",
-        "address": BBITPublicAddress,
-        "privateKey": BBITPrivateKey,
-        "publicKey": PublicKeyString,
-        "seed": code.toString()
-    };
-
-    CONSOLE_DEBUG && console.log("BBITWallet", BBITWallet);
-    CONSOLE_DEBUG && console.log("BBITWallet success : ", BBITWallet.status);
-    CONSOLE_DEBUG && console.log("BBITWallet address :", BBITWallet.address);
-
-
-    CONSOLE_DEBUG && console.log("BBITWallet privateKey :", BBITWallet.privateKey);
-    CONSOLE_DEBUG && console.log("BBITWallet seed :", BBITWallet.seed);
-    seed = BBITWallet.seed;
-
-    localStorage.setItem("pubaddr", BBITWallet.address);
-    pubaddr = localStorage.getItem("pubaddr");
-    privkey1 = BBITWallet.privateKey;
-    CONSOLE_DEBUG && console.log("BBITWallet privkey1 :", privkey1);
-
-    CONSOLE_DEBUG && console.log("BBITWallet pubaddr :", pubaddr);
-
-
-
-    return BBITWallet;
-
-
+function importAddress(publicAddress){
+    // publicAddress = localStorage.getItem('publicAddress');
+    $.ajax({
+        type: "POST",
+        // url: "/assets"
+        url: 'assets/api/importaddress.php',
+        data: ({
+           publicAddress : publicAddress
+        }),
+        success: function(Response) {
+            importAddressResponse = Response;
+            importAddressResponse = JSON.parse(importAddressResponse);
+            importAddressResponse = importAddressResponse.result.address;
+          
+            //console.log(importAddressResponse, "outscope"); 
+            //localStorage.setItem("importAddressResponse", importAddressResponse);
+            
+                      
+        }
+    });   
+    
 }
 
 
 
 
-function restoreBip39BBITWallet(codeStr, password = '', address_pubkeyhash_version = '0041bb05',
-    address_checksum_value = '07cb53da', private_key_version = '80fbe117') {
+function validateAddress(){
+    $.ajax({
+        type: "POST",
+        // url: "/assets"
+        url: 'assets/api/validateaddress.php',
+        data: ({
+           publicAddress:publicAddress
+        }),
+        success: function(Response) {
+            addressValidity = Response;
+            addressValidity = JSON.parse(addressValidity);
+            isvalid = addressValidity.result.isvalid;
+            console.log(isvalid, "isvalid");
+          
+            console.log(addressValidity, "outscope"); 
 
-    try {
-        if (!Mnemonic.isValid(codeStr))
-            return {
-                "status": "error",
-                "message": "Seed/mnemonic list is not valid."
-            };
-    } catch (e) {
-        return {
-            "status": "error",
-            "message": "Seed/mnemonic list is not valid."
-        };
+            redirectToHome();
+            
+                      
+        }
+    });   
+    
+}
+
+function decodeTransaction(hex){
+    $.ajax({
+        type: "POST",
+        // url: "/assets"
+        url: 'assets/api/decodetransaction.php',
+        data: ({
+           hex:hex
+        }),
+        success: function(Response) {
+            var txdata = Response;
+            txdata = JSON.parse(txdata);
+            txid = txdata.result.vin[0].txid;
+            decodedvout = txdata.result.vin[0].vout;
+            console.log(txid, "result is: ");
+
+            getScripthash(txid);
+                             
+        }
+    });   
+    
+}
+
+function getScripthash(txid){
+
+       $.ajax({
+        type: "POST",
+        // url: "/assets"
+        url: 'assets/api/getScripthash.php',
+        data: ({
+                txid : txid     
+        }),
+        success: function(Response) {
+            var x = Response;
+            x = JSON.parse(x);
+            scriptHash = x.result.vout[decodedvout].scriptPubKey.hex;
+            console.log(scriptHash, "script hash is:");      
+            signTransaction(hex, txid, decodedvout, scriptHash, redeemScript, privateKey);     
+        }
+        
+    });
+
+}
+
+
+function signTransaction(hex, txid, decodedvout, scriptHash, redeemScript, privateKey){
+    
+    var privateKey = $('#privkey').val();
+    redeemScript = localStorage.getItem('redeemscript');
+    
+    $.ajax({
+        type: "POST",
+        // url: "/assets"
+        url: 'assets/api/signtransaction.php',
+        data: ({
+           hex: hex,
+           txid: txid,
+           decodedvout: decodedvout,
+           redeemScript: redeemScript,
+           scriptHash: scriptHash,
+           privateKey : privateKey
+        }),
+        success: function(Response) {
+            signedresult = Response;
+            signedresult = JSON.parse(signedresult);
+            finalhex = signedresult.result.hex;
+            console.log(finalhex, "final hex is:");
+          
+            //console.log(addressValidity, "outscope");            
+                      
+        }
+    });   
+    
+}
+
+
+
+function redirectToHome(){
+    if(isvalid == true){
+        window.location.href = "/multichainwallet/home.php";
     }
+    else{
+        alert("invalid address ");
+    }
+}
 
-    var code = new Mnemonic(codeStr);
 
-    var xprivKey = code.toHDPrivateKey(password); // using a passphrase
-    var masterPrivateKey = xprivKey.privateKey.toString();
+function sendTransaction(){
+    publicAddress = localStorage.getItem('publicAddress');
+    $('#send').click(function(){
 
-    BBITPublicAddress = createBBITAddressFromPrivateKey(masterPrivateKey, address_pubkeyhash_version, address_checksum_value);
-    BBITPrivateKey = createBBITPrivateKeyFromPrivateKey(masterPrivateKey, private_key_version, address_checksum_value);
+       var toaddress = $('#toaddress').val();
+       //console.log(publicAddress, "toaddress value here : - ");
+       $.ajax({
+        type: "POST",
+        // url: "/assets"
+        url: 'assets/api/createrawsendfrom.php',
+        data: ({
+            publicAddress : publicAddress,
+            toaddress : toaddress
+            
+        }),
+        success: function(Response) {
+            var x = Response;
+            x = JSON.parse(x);
+            hex = x.result.hex;
+            console.log(hex, "hex is:"); 
+            decodeTransaction(hex);
+            // listaddress(publicAddress);   
+                             
+        }
+        
+    });   
+    });
 
-    var BBITWallet = {
-        "status": "success",
-        "address": BBITPublicAddress,
-        "publicKey": publicKeyHex,
-        "privateKey": BBITPrivateKey
-    };
-
-    return BBITWallet;
+}

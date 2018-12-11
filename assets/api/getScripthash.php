@@ -2,24 +2,22 @@
 
 $curl = curl_init();
 $config = include('config.php');
-
+$txid = $_POST['txid'];
 
 curl_setopt_array($curl, array(
-
-  // CURLOPT_PORT => "6290",
-  // CURLOPT_URL => "http://194.135.82.88:6290",
-  CURLOPT_PORT => $config['port'],
-  CURLOPT_URL => $config['host'],
-  CURLOPT_USERPWD => $config['user'].":".$config['pass'],
+    CURLOPT_PORT => $config['port'],
+    CURLOPT_URL => $config['host'],
+    CURLOPT_USERPWD => $config['user'].":".$config['pass'],
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => "",
   CURLOPT_MAXREDIRS => 10,
   CURLOPT_TIMEOUT => 30,
   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
   CURLOPT_CUSTOMREQUEST => "POST",
-  CURLOPT_POSTFIELDS => "{\"method\":\"createkeypairs\",\"params\":[],\"chain_name\":\"Buybit\"}",
+  CURLOPT_POSTFIELDS => "{\"method\":\"getrawtransaction\",\"params\":[\"$txid\", 1],\"id\":1,\"chain_name\":\"Buybit\"}",
   CURLOPT_HTTPHEADER => array(
-   
+    "Cache-Control: no-cache",
+    "Content-Type: application/json",
     "cache-control: no-cache"
   ),
 ));
@@ -35,4 +33,4 @@ if ($err) {
   echo $response;
 }
 
-?>
+ ?>
