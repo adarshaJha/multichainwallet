@@ -1,9 +1,9 @@
 
-// // required bitcore.js libraries to interact with blockchain //
-//     bitcore = require('bitcore-lib');
-//     Mnemonic = require('bitcore-mnemonic');
-//     buffer = bitcore.util.buffer;
-//     // Buffer = require('buffer');
+// required bitcore.js libraries to interact with blockchain //
+    bitcore = require('bitcore-lib');
+    Mnemonic = require('bitcore-mnemonic');
+    buffer = bitcore.util.buffer;
+    // Buffer = require('buffer');
 
 // List of global variables declared and Console toggle can be achieved by changing the value of CONSOLE_DEBUG to either true or false //
 
