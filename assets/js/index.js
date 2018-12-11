@@ -35,40 +35,45 @@ var txid;
 var scriptHash;
 var finaltxid;
 var privateKey;
+address_pubkeyhash_version = '00';
+address_checksum_value = '00000000';
+private_key_version = '80';
 
 $('Document').ready(function(){
 
-    addressGenrationScript();
+
+    //addressGenrationScript();
+    BitcoreAddressGenerator();
     sendTransaction();
 
 });
 
 
-function addressGenrationScript(){
-    $('#createKeyPairsBtn').click(function(){
-        $.ajax({
-            type: "POST",
-            // url: "/assets"
-            url: 'assets/api/createkeypairs.php',
-            data: ({
+// function addressGenrationScript(){
+//     $('#createKeyPairsBtn').click(function(){
+//         $.ajax({
+//             type: "POST",
+//             // url: "/assets"
+//             url: 'assets/api/createkeypairs.php',
+//             data: ({
                
-            }),
-            success: function(Response) {
-                var x = Response;
-                console.log(x); 
-                x = JSON.parse(x);
-                publicKey = x.result[0].pubkey;
-                publicAddress = x.result[0].address;
+//             }),
+//             success: function(Response) {
+//                 var x = Response;
+//                 console.log(x); 
+//                 x = JSON.parse(x);
+//                 publicKey = x.result[0].pubkey;
+//                 publicAddress = x.result[0].address;
 
-                importAddress(publicAddress);
+//                 importAddress(publicAddress);
 
                 
-                createmultisig();
+//                 createmultisig();
                           
-            }
-        });
-    });
-}
+//             }
+//         });
+//     });
+// }
 
 
 function createmultisig(){
@@ -231,6 +236,191 @@ function redirectToHome(){
     else{
         alert("invalid address ");
     }
+}
+
+
+// function to generate BIP39XRKwallet
+
+function BitcoreAddressGenerator(){
+     $('#createKeyPairsBtn').click(function(){
+            generateBip39XRKWallet(password, wordListLang, entropyLength,
+    address_pubkeyhash_version, address_checksum_value,
+    private_key_version);
+     });
+}
+
+
+
+
+function generateBip39XRKWallet(password, wordListLang, entropyLength,
+    address_pubkeyhash_version, address_checksum_value,
+    private_key_version) {
+
+    const wordList = eval('Mnemonic.Words.' + wordListLang);
+    var code = new Mnemonic(entropyLength, wordList);
+
+    var xprivKey = code.toHDPrivateKey(password); // using a passphrase
+    var masterPrivateKey = xprivKey.privateKey.toString();
+
+    PublicAddress = createXRKAddressFromPrivateKey(masterPrivateKey, address_pubkeyhash_version, address_checksum_value);
+    PrivateKey = createXRKPrivateKeyFromPrivateKey(masterPrivateKey, private_key_version, address_checksum_value);
+
+    CONSOLE_DEBUG && console.log("final publickey hex pkh1: ", PublicKeyString);
+    // var pkh = bitcore.PublicKey.fromString(PublicKeyString);
+    // CONSOLE_DEBUG && console.log("final publickey hex pkh: ", pkh);
+
+
+    var xrkWallet = {
+        "status": "success",
+        "address": xrkPublicAddress,
+        "privateKey": xrkPrivateKey,
+        "publicKey": PublicKeyString,
+        "seed": code.toString()
+    };
+
+    CONSOLE_DEBUG && console.log("xrkWallet", xrkWallet);
+    CONSOLE_DEBUG && console.log("xrkWallet success : ", xrkWallet.status);
+    CONSOLE_DEBUG && console.log("xrkWallet address :", xrkWallet.address);
+
+
+    CONSOLE_DEBUG && console.log("xrkWallet privateKey :", xrkWallet.privateKey);
+    CONSOLE_DEBUG && console.log("xrkWallet seed :", xrkWallet.seed);
+    seed = xrkWallet.seed;
+
+    localStorage.setItem("pubaddr", xrkWallet.address);
+    publicAddress = localStorage.getItem("pubaddr");
+    privatekey = xrkWallet.privateKey;
+    CONSOLE_DEBUG && console.log("xrkWallet privkey1 :", privkey1);
+
+    CONSOLE_DEBUG && console.log("xrkWallet pubaddr :", pubaddr);
+
+
+
+    return xrkWallet;
+
+
+}
+
+
+// this functions creates XRK Public Address from master private key
+function createXRKAddressFromPrivateKey(masterPrivateKey, address_pubkeyhash_version, address_checksum_value) {
+
+    // step 1: Get raw private key
+    var privateKeyHex = new bitcore.PrivateKey(masterPrivateKey);
+
+    // step 2: Get public key from private key
+    publicKeyHex = privateKeyHex.publicKey;
+
+    var publicKeyBuffer = publicKeyHex.toBuffer();
+
+
+    // step 3: Calculate sha256 hash of the public key
+    var publicKeySHA256Hash = new bitcore.crypto.Hash.sha256(publicKeyBuffer);
+
+    // step 4: Calculate ripemd160 hash of the previous sha256 hash
+    var publicKeyRipemd160Hash = new bitcore.crypto.Hash.ripemd160(publicKeySHA256Hash);
+
+    // step 5: insert address_pubkeyhash_version at appropriate place in previous digest
+    var adrPubKeyHashVer = buffer.hexToBuffer(address_pubkeyhash_version);
+    var insertStep = Math.floor(20 / adrPubKeyHashVer.length)
+    var publicKeyExtendedRipemd160Hash = buffer.copy(publicKeyRipemd160Hash);
+
+    for (var i = 0; i < adrPubKeyHashVer.length; i++) {
+
+        var buf_before = publicKeyExtendedRipemd160Hash.slice(0, i + i * insertStep);
+        var buf_middle = adrPubKeyHashVer.slice(i, i + 1);
+        var buf_after = publicKeyExtendedRipemd160Hash.slice(i + i * insertStep);
+
+        publicKeyExtendedRipemd160Hash = buffer.concat([buf_before, buf_middle, buf_after]);
+
+    }
+
+    // step 6: Calculate sha256 of the extended ripemd160
+    var publicKeySHA256HashOfExtendedRipemd160Hash = new bitcore.crypto.Hash.sha256(publicKeyExtendedRipemd160Hash);
+
+    // step 7: Calculate sha256 hash of the previous sha256 hash
+    var publicKeySHA256HashOfSHA256HashOfExtendedRipemd160Hash = new bitcore.crypto.Hash.sha256(publicKeySHA256HashOfExtendedRipemd160Hash);
+
+    // step 8: Get address checksum - First 4 bytes of previous hash
+    var addressChecksum = publicKeySHA256HashOfSHA256HashOfExtendedRipemd160Hash.slice(0, 4);
+
+    // step 9: XOR above checksum with address-checksum-value blockchain parameter
+    var adrChecksumValue = buffer.hexToBuffer(address_checksum_value);
+    var xoredChecksum = xorBuffer(adrChecksumValue, addressChecksum);
+
+    // step 10: Add xored checksum at the end of extended ripemd160 hash (from step 5)
+    var PublicBinaryAddress = buffer.concat([publicKeyExtendedRipemd160Hash, xoredChecksum]);
+
+    // step 11: Apply bitcoin base58 encoding to above result
+    var publicAddress = bitcore.encoding.Base58.encode(PublicBinaryAddress);
+
+
+    //console.log("public key hex is: " + publicKeyHex);
+
+    // convert publicKeyString to toString 
+
+    PublicKeyString = publicKeyHex.toString();
+
+    //console.log("PublicKeyString key hex is: " + PublicKeyString);
+
+
+    //console.log("public address is : " + xrkPublicAddress);
+
+
+
+    return publicAddress;
+}
+
+
+
+// this functions creates XRK Private Key from master private key
+function createXRKPrivateKeyFromPrivateKey(masterPrivateKey, private_key_version, address_checksum_value) {
+
+    // step 1: Get raw private key
+    var privateKeyHex = new bitcore.PrivateKey(masterPrivateKey);
+    var privateKeyBuffer = privateKeyHex.toBuffer();
+
+    // step 2: Append 0x01 at end of private key (if corresponding public key is compressed)
+    var buf01 = buffer.emptyBuffer(1);
+    buf01[0] = 1;
+    var privateKeyBufferAppended = buffer.concat([privateKeyBuffer, buf01]);
+
+    // step 3: insert private_key_version at appropriate place in previous result
+    var privateKeyVer = buffer.hexToBuffer(private_key_version);
+    var insertStep = Math.floor(33 / privateKeyVer.length)
+    var privateKeyExtended = buffer.copy(privateKeyBufferAppended);
+
+    for (var i = 0; i < privateKeyVer.length; i++) {
+
+        var buf_before = privateKeyExtended.slice(0, i + i * insertStep);
+        var buf_middle = privateKeyVer.slice(i, i + 1);
+        var buf_after = privateKeyExtended.slice(i + i * insertStep);
+
+        privateKeyExtended = buffer.concat([buf_before, buf_middle, buf_after]);
+    }
+
+    // step 4: Calculate sha256 of the extended private key
+    var privateKeyExtendedSHA256 = new bitcore.crypto.Hash.sha256(privateKeyExtended);
+
+    // step 5: Calculate sha256 hash of the previous sha256 hash
+    var privateKeyExtendedSHA256OfSHA256 = new bitcore.crypto.Hash.sha256(privateKeyExtendedSHA256);
+
+    // step 6: Get address checksum - First 4 bytes of previous hash
+    var addressChecksum = privateKeyExtendedSHA256OfSHA256.slice(0, 4);
+
+    // step 7: XOR above checksum with address-checksum-value blockchain parameter
+    var adrChecksumValue = buffer.hexToBuffer(address_checksum_value);
+    var xoredChecksum = xorBuffer(adrChecksumValue, addressChecksum);
+
+    // step 8: Add xored checksum at the end of extended privatekey (from step 3)
+    var BinaryPrivateKey = buffer.concat([privateKeyExtended, xoredChecksum]);
+
+    // step 9: Apply bitcoin base58 encoding to above result
+    var privateKey = bitcore.encoding.Base58.encode(BinaryPrivateKey);
+
+
+    return privateKey;
+
 }
 
 
