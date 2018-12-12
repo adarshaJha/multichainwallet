@@ -40,6 +40,7 @@
             <div class="container">
                 <div class="sm-6">
                     <div class="">
+                        <input placeholder="Enter Password" id="pass" type="text" class="validate">
                         <a class="waves-effect waves-light btn-large " id="createKeyPairsBtn"><i class="material-icons left">cloud</i>Create  it</a>
 
                     </div>
@@ -58,8 +59,12 @@
       <script
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"
         ></script>
+      <script src="assets/js/bitcore-lib/bitcore-lib.js"></script>
+      <script src="assets/js/bitcore-mnemonic/bitcore-mnemonic.js"></script>
+      
       <script src ="assets/js/index.js"></script>
-      <!-- <script src="javascript/bitcore-lib/bitcore-lib.js"></script>
-      <script src="javascript/bitcore-mnemonic/bitcore-mnemonic.js"></script> -->
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+      <!-- <script src="bundle.js"></script> -->
     </body>
   </html>

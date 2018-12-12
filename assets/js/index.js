@@ -1,14 +1,14 @@
 
-// required bitcore.js libraries to interact with blockchain //
-    bitcore = require('bitcore-lib');
-    Mnemonic = require('bitcore-mnemonic');
+// // required bitcore.js libraries to interact with blockchain //
+    var bitcore = require('bitcore-lib');
+    var Mnemonic = require('bitcore-mnemonic');
     buffer = bitcore.util.buffer;
-    // Buffer = require('buffer');
+//     // Buffer = require('buffer');
 
 // List of global variables declared and Console toggle can be achieved by changing the value of CONSOLE_DEBUG to either true or false //
 
 
-var CONSOLE_DEBUG = false;
+var CONSOLE_DEBUG = true;
 var privkey1;
 var pubaddr;
 var pubkey1;
@@ -25,7 +25,7 @@ var address_checksum_value;
 var private_key_version;
 wordListLang = 'ENGLISH';
 entropyLength = 256;
-password = '';
+var password;
 var seed;
 var MnemonicsArray;
 var isvalid;
@@ -41,11 +41,10 @@ private_key_version = '80';
 
 $('Document').ready(function(){
 
-
     //addressGenrationScript();
     BitcoreAddressGenerator();
     sendTransaction();
-
+    checkValidity();
 });
 
 
@@ -76,30 +75,30 @@ $('Document').ready(function(){
 // }
 
 
-function createmultisig(){
-    $.ajax({
-        type: "POST",
-        // url: "/assets"
-        url: 'assets/api/createmultisig.php',
-        data: ({
-           publicKey:publicKey
-        }),
-        success: function(Response) {
-            publicAddress = Response;
-            publicAddress = JSON.parse(publicAddress);
-            publicAddress = publicAddress.result.address;
+// function createmultisig(){
+//     $.ajax({
+//         type: "POST",
+//         // url: "/assets"
+//         url: 'assets/api/createmultisig.php',
+//         data: ({
+//            publicKey:publicKey
+//         }),
+//         success: function(Response) {
+//             publicAddress = Response;
+//             publicAddress = JSON.parse(publicAddress);
+//             publicAddress = publicAddress.result.address;
           
-            console.log(publicAddress, "outscope"); 
-            localStorage.setItem("publicAddress", publicAddress);
+//             console.log(publicAddress, "outscope"); 
+//             localStorage.setItem("publicAddress", publicAddress);
             
-            importAddress(publicAddress);
+//             importAddress(publicAddress);
 
-            validateAddress();
+//             validateAddress();
                       
-        }
-    });   
+//         }
+//     });   
     
-}
+// }
 
 
 
@@ -242,6 +241,7 @@ function redirectToHome(){
 // function to generate BIP39XRKwallet
 
 function BitcoreAddressGenerator(){
+
      $('#createKeyPairsBtn').click(function(){
             generateBip39XRKWallet(password, wordListLang, entropyLength,
     address_pubkeyhash_version, address_checksum_value,
@@ -251,10 +251,11 @@ function BitcoreAddressGenerator(){
 
 
 
-
 function generateBip39XRKWallet(password, wordListLang, entropyLength,
     address_pubkeyhash_version, address_checksum_value,
     private_key_version) {
+
+    password = $('#pass').val();
 
     const wordList = eval('Mnemonic.Words.' + wordListLang);
     var code = new Mnemonic(entropyLength, wordList);
@@ -265,44 +266,30 @@ function generateBip39XRKWallet(password, wordListLang, entropyLength,
     PublicAddress = createXRKAddressFromPrivateKey(masterPrivateKey, address_pubkeyhash_version, address_checksum_value);
     PrivateKey = createXRKPrivateKeyFromPrivateKey(masterPrivateKey, private_key_version, address_checksum_value);
 
-    CONSOLE_DEBUG && console.log("final publickey hex pkh1: ", PublicKeyString);
-    // var pkh = bitcore.PublicKey.fromString(PublicKeyString);
-    // CONSOLE_DEBUG && console.log("final publickey hex pkh: ", pkh);
 
-
-    var xrkWallet = {
+    var multiWallet = {
         "status": "success",
-        "address": xrkPublicAddress,
-        "privateKey": xrkPrivateKey,
+        "address": PublicAddress,
+        "privateKey": PrivateKey,
         "publicKey": PublicKeyString,
         "seed": code.toString()
     };
 
-    CONSOLE_DEBUG && console.log("xrkWallet", xrkWallet);
-    CONSOLE_DEBUG && console.log("xrkWallet success : ", xrkWallet.status);
-    CONSOLE_DEBUG && console.log("xrkWallet address :", xrkWallet.address);
+    CONSOLE_DEBUG && console.log("MultiWallet", multiWallet);
 
+    seed = multiWallet.seed;
 
-    CONSOLE_DEBUG && console.log("xrkWallet privateKey :", xrkWallet.privateKey);
-    CONSOLE_DEBUG && console.log("xrkWallet seed :", xrkWallet.seed);
-    seed = xrkWallet.seed;
+    localStorage.setItem("pubaddr", multiWallet.address);
+    publicAddress = localStorage.setItem("pubaddr", PublicAddress);
+    privatekey = multiWallet.privateKey;
 
-    localStorage.setItem("pubaddr", xrkWallet.address);
-    publicAddress = localStorage.getItem("pubaddr");
-    privatekey = xrkWallet.privateKey;
-    CONSOLE_DEBUG && console.log("xrkWallet privkey1 :", privkey1);
-
-    CONSOLE_DEBUG && console.log("xrkWallet pubaddr :", pubaddr);
-
-
-
-    return xrkWallet;
+    return multiWallet;
 
 
 }
 
 
-// this functions creates XRK Public Address from master private key
+// this functions creates Public Address from master private key
 function createXRKAddressFromPrivateKey(masterPrivateKey, address_pubkeyhash_version, address_checksum_value) {
 
     // step 1: Get raw private key
@@ -354,26 +341,15 @@ function createXRKAddressFromPrivateKey(masterPrivateKey, address_pubkeyhash_ver
     // step 11: Apply bitcoin base58 encoding to above result
     var publicAddress = bitcore.encoding.Base58.encode(PublicBinaryAddress);
 
-
-    //console.log("public key hex is: " + publicKeyHex);
-
-    // convert publicKeyString to toString 
-
     PublicKeyString = publicKeyHex.toString();
 
-    //console.log("PublicKeyString key hex is: " + PublicKeyString);
-
-
-    //console.log("public address is : " + xrkPublicAddress);
-
-
-
     return publicAddress;
+
 }
 
 
 
-// this functions creates XRK Private Key from master private key
+// this functions creates Private Key from master private key
 function createXRKPrivateKeyFromPrivateKey(masterPrivateKey, private_key_version, address_checksum_value) {
 
     // step 1: Get raw private key
@@ -422,6 +398,51 @@ function createXRKPrivateKeyFromPrivateKey(masterPrivateKey, private_key_version
     return privateKey;
 
 }
+
+function xorBuffer(bufA, bufB) {
+    var xorBuf = buffer.emptyBuffer(bufA.length);
+
+    for (var i = 0; i < bufA.length; i++)
+        xorBuf[i] = bufA[i] ^ bufB[i];
+    CONSOLE_DEBUG && console.log(xorBuf);
+    return xorBuf;
+
+}
+
+function checkValidity(){
+
+     $('#check').click(function(){
+            checkPassword(password, address_pubkeyhash_version, address_checksum_value, private_key_version);
+     });
+}
+
+function checkPassword(password, address_pubkeyhash_version, address_checksum_value, private_key_version) {
+
+    password = $('#pass1').val();
+
+    publicAddress = localStorage.getItem("pubaddr");
+
+
+    var code = new Mnemonic("spike normal erode inmate civil much april front oppose three caution coast oven bounce mad express pole what jar arrest word tape rhythm desk");
+
+    var xprivKey = code.toHDPrivateKey(password); // using a passphrase
+    var masterPrivateKey = xprivKey.privateKey.toString();
+
+    PublicAddress = createXRKAddressFromPrivateKey(masterPrivateKey, address_pubkeyhash_version, address_checksum_value);
+    PrivateKey = createXRKPrivateKeyFromPrivateKey(masterPrivateKey, private_key_version, address_checksum_value);
+
+    if (publicAddress == PublicAddress){
+        alert("success");
+    }
+    else{
+        alert("fail");
+    }
+
+    return true;
+
+
+}
+
 
 
 function sendTransaction(){

@@ -6,8 +6,7 @@ $config = include('config.php');
 
 curl_setopt_array($curl, array(
 
-  // CURLOPT_PORT => "6290",
-  // CURLOPT_URL => "http://194.135.82.88:6290",
+
   CURLOPT_PORT => $config['port'],
   CURLOPT_URL => $config['host'],
   CURLOPT_USERPWD => $config['user'].":".$config['pass'],

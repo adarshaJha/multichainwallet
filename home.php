@@ -43,9 +43,11 @@
                     <div class="">
                     <input placeholder="To Address" id="toaddress" type="text" class="validate">
                     <input placeholder="Enter Amount" id="amount" type="number" class="validate">
+                    <input placeholder="Enter Password" id="pass1" type="text" class="validate">
                     <input placeholder="Enter Private Key" id="privkey" type="text" class="validate">
 
                         <a class="waves-effect waves-light btn-large " id="send"><i class="material-icons left">cloud</i>Send Amount</a>
+                        <a class="waves-effect waves-light btn-large " id="check"><i class="material-icons left">cloud</i>Check Validity</a>
 
                     </div>
                 </div>
@@ -63,9 +65,12 @@
       <script
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"
         ></script>
+      <script src="assets/js/bitcore-lib/bitcore-lib.js"></script>
+      <script src="assets/js/bitcore-mnemonic/bitcore-mnemonic.js"></script>
+      
       <script src ="assets/js/index.js"></script>
-      <!-- <script src="javascript/bitcore-lib/bitcore-lib.js"></script>
-      <script src="javascript/bitcore-mnemonic/bitcore-mnemonic.js"></script> -->
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
     </body>
   </html>
 
