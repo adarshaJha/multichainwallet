@@ -1,8 +1,9 @@
 <?php
 
+$curl = curl_init();
+
 $config = include('config.php');
 $publicAddress = $_POST['publicAddress'];
-
 
 curl_setopt_array($curl, array(
     CURLOPT_PORT => $config['port'],
@@ -16,7 +17,6 @@ curl_setopt_array($curl, array(
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_POSTFIELDS => "{\"method\":\"importaddress\",\"params\":[\"$publicAddress\", \"\", false],\"chain_name\":\"Buybit\"}",
   CURLOPT_HTTPHEADER => array(
-    "Postman-Token: e503d7bf-4d2c-4c44-88b0-3a6695a62ea3",
     "cache-control: no-cache"
   ),
 ));

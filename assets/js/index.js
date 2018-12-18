@@ -11,7 +11,6 @@
 var CONSOLE_DEBUG = true;
 var privkey1;
 var pubaddr;
-var pubkey1;
 var publicKey;
 var redeemScript;
 var publicAddress;
@@ -35,6 +34,7 @@ var txid;
 var scriptHash;
 var finaltxid;
 var privateKey;
+var multisigaddress;
 address_pubkeyhash_version = '00';
 address_checksum_value = '00000000';
 private_key_version = '80';
@@ -75,30 +75,24 @@ $('Document').ready(function(){
 // }
 
 
-// function createmultisig(){
-//     $.ajax({
-//         type: "POST",
-//         // url: "/assets"
-//         url: 'assets/api/createmultisig.php',
-//         data: ({
-//            publicKey:publicKey
-//         }),
-//         success: function(Response) {
-//             publicAddress = Response;
-//             publicAddress = JSON.parse(publicAddress);
-//             publicAddress = publicAddress.result.address;
+function createmultisig(publicKey){
+    $.ajax({
+        type: "POST",
+        url: 'assets/api/createmultisig.php',
+        data: ({
+           publicKey:publicKey
+        }),
+        success: function(Response) {
+            publicAddress = Response;
+            publicAddress = JSON.parse(publicAddress);
+            multisigaddress = publicAddress.result;
           
-//             console.log(publicAddress, "outscope"); 
-//             localStorage.setItem("publicAddress", publicAddress);
-            
-//             importAddress(publicAddress);
-
-//             validateAddress();
+            localStorage.setItem("multisigaddress", multisigaddress);
                       
-//         }
-//     });   
+        }
+    });   
     
-// }
+}
 
 
 
@@ -112,14 +106,13 @@ function importAddress(publicAddress){
            publicAddress : publicAddress
         }),
         success: function(Response) {
+
             importAddressResponse = Response;
             importAddressResponse = JSON.parse(importAddressResponse);
-            importAddressResponse = importAddressResponse.result.address;
-          
-            //console.log(importAddressResponse, "outscope"); 
-            //localStorage.setItem("importAddressResponse", importAddressResponse);
-            
-                      
+            importAddressResponse = importAddressResponse.result;
+
+            createmultisig(publicKey);
+                
         }
     });   
     
@@ -199,7 +192,6 @@ function getScripthash(txid){
 function signTransaction(hex, txid, decodedvout, scriptHash, redeemScript, privateKey){
     
     var privateKey = $('#privkey').val();
-    redeemScript = localStorage.getItem('redeemscript');
     
     $.ajax({
         type: "POST",
@@ -209,11 +201,11 @@ function signTransaction(hex, txid, decodedvout, scriptHash, redeemScript, priva
            hex: hex,
            txid: txid,
            decodedvout: decodedvout,
-           redeemScript: redeemScript,
            scriptHash: scriptHash,
            privateKey : privateKey
         }),
         success: function(Response) {
+
             signedresult = Response;
             signedresult = JSON.parse(signedresult);
             finalhex = signedresult.result.hex;
@@ -277,11 +269,12 @@ function generateBip39XRKWallet(password, wordListLang, entropyLength,
 
     CONSOLE_DEBUG && console.log("MultiWallet", multiWallet);
 
-    seed = multiWallet.seed;
-
     localStorage.setItem("pubaddr", multiWallet.address);
-    publicAddress = localStorage.setItem("pubaddr", PublicAddress);
-    privatekey = multiWallet.privateKey;
+    localStorage.setItem("seed", multiWallet.seed);
+    
+    publicKey = multiWallet.publicKey;
+
+    importAddress(PublicAddress);
 
     return multiWallet;
 
@@ -409,10 +402,13 @@ function xorBuffer(bufA, bufB) {
 
 }
 
+
+
 function checkValidity(){
 
      $('#check').click(function(){
             checkPassword(password, address_pubkeyhash_version, address_checksum_value, private_key_version);
+            
      });
 }
 
@@ -420,10 +416,13 @@ function checkPassword(password, address_pubkeyhash_version, address_checksum_va
 
     password = $('#pass1').val();
 
-    publicAddress = localStorage.getItem("pubaddr");
+    console.log(password);
 
+    seed = localStorage.getItem("seed");
 
-    var code = new Mnemonic("spike normal erode inmate civil much april front oppose three caution coast oven bounce mad express pole what jar arrest word tape rhythm desk");
+    console.log(seed);
+
+    var code = new Mnemonic(seed);
 
     var xprivKey = code.toHDPrivateKey(password); // using a passphrase
     var masterPrivateKey = xprivKey.privateKey.toString();
@@ -431,7 +430,10 @@ function checkPassword(password, address_pubkeyhash_version, address_checksum_va
     PublicAddress = createXRKAddressFromPrivateKey(masterPrivateKey, address_pubkeyhash_version, address_checksum_value);
     PrivateKey = createXRKPrivateKeyFromPrivateKey(masterPrivateKey, private_key_version, address_checksum_value);
 
-    if (publicAddress == PublicAddress){
+
+    var pub = listaddresses(multisigaddress);
+
+    if (pub == PublicAddress){
         alert("success");
     }
     else{
@@ -443,6 +445,33 @@ function checkPassword(password, address_pubkeyhash_version, address_checksum_va
 
 }
 
+
+function listaddresses(multisigaddress){
+    var address;
+    multisigaddress = localStorage.getItem('multisigaddress');
+    
+       $.ajax({
+        type: "POST",
+        url: 'assets/api/listaddresses.php',
+        async:false,
+        data: ({
+            multisigaddress : multisigaddress,
+            
+        }),
+        success: function(Response) {
+            var x = Response;
+            x = JSON.parse(x);
+            var check = x.result[0].addresses[2];
+
+            address=check;
+                             
+        }
+        
+    });
+
+       return address;
+
+}
 
 
 function sendTransaction(){

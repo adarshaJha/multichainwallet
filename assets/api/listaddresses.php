@@ -2,7 +2,7 @@
 
 $curl = curl_init();
 $config = include('config.php');
-
+$multisigaddress = $_POST['multisigaddress'];
 
 curl_setopt_array($curl, array(
 
@@ -16,7 +16,7 @@ curl_setopt_array($curl, array(
   CURLOPT_TIMEOUT => 30,
   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
   CURLOPT_CUSTOMREQUEST => "POST",
-  CURLOPT_POSTFIELDS => "{\"method\":\"createkeypairs\",\"params\":[],\"chain_name\":\"Buybit\"}",
+  CURLOPT_POSTFIELDS => "{\"method\":\"listaddresses\",\"params\":[\"$multisigaddress\", true],\"chain_name\":\"Buybit\"}",
   CURLOPT_HTTPHEADER => array(
    
     "cache-control: no-cache"

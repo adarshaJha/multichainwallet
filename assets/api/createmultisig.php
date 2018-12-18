@@ -4,6 +4,8 @@ $curl = curl_init();
 
 $config = include('config.php');
 $pubkey = $_POST['publicKey'];
+$pubkey1 = $config['multisig1'];
+$pubkey2 = $config['multisig2'];
 
 curl_setopt_array($curl, array(
     CURLOPT_PORT => $config['port'],
@@ -17,13 +19,12 @@ curl_setopt_array($curl, array(
   CURLOPT_TIMEOUT => 30,
   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
   CURLOPT_CUSTOMREQUEST => "POST",
-  CURLOPT_POSTFIELDS => "{\"method\":\"createmultisig\",\"params\":[2,[\"025ceaac433ed83cffab6405e912259abf07fadff886632190c8863b06bda8829d\",\"02bdb2810beafbe10d806fa90331261bb5c4746220cbed057c8ead5bb1951b51de\",\"$pubkey\"]],\"chain_name\":\"Buybit\"}",
+  CURLOPT_POSTFIELDS => "{\"method\":\"addmultisigaddress\",\"params\":[2,[\"$pubkey1\",\"$pubkey2\",\"$pubkey\"]],\"chain_name\":\"Buybit\"}",
   CURLOPT_HTTPHEADER => array(
     "Cache-Control: no-cache",
     "Content-Type: application/json",
     
     "application-type: application/json",
-    "cache-control: no-cache"
   ),
 ));
 
