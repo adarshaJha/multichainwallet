@@ -19,7 +19,6 @@ curl_setopt_array($curl, array(
   CURLOPT_HTTPHEADER => array(
     "Cache-Control: no-cache",
     "Content-Type: application/json",
-    "Postman-Token: de078f27-61da-4e7b-907d-ee6d7842e36a",
     "cache-control: no-cache"
   ),
 ));

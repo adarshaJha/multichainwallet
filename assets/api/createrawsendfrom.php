@@ -19,7 +19,6 @@ curl_setopt_array($curl, array(
   CURLOPT_POSTFIELDS => "{\"method\":\"createrawsendfrom\",\"params\":[\"16fTLkm9iydr9tSgvcddHv9DCY5nHQ86Lz\",{\"$toaddress\":1},[],\"sign\"],\"chain_name\" : \"Buybit\"}",
   CURLOPT_HTTPHEADER => array(
     "Content-Type: application/json",
-    "Postman-Token: ddb1685e-68d4-476c-857a-3a7635287884",
   ),
 ));
 
