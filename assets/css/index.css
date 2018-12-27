@@ -1,1 +1,25 @@
-asdfasd
+html{
+    font-family: 'Poppins', sans-serif !important;
+
+}
+
+
+nav {
+    color: #fff;
+    background-color:#26a69a ;
+    width: 100%;
+    height: 56px;
+    line-height: 56px;
+}
+
+.btn-large {
+    height: 35px;
+    line-height: 35px;
+    font-size: 12px;
+    padding: 0 28px;
+    font-weight: 300;
+}
+input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), input[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default), textarea.materialize-textarea{
+    font-size: 12px;
+    font-weight: 300;
+}

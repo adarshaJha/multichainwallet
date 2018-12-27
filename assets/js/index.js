@@ -39,13 +39,22 @@ address_pubkeyhash_version = '00';
 address_checksum_value = '00000000';
 private_key_version = '80';
 
-$('Document').ready(function(){
+$('document').ready(function(){
 
     //addressGenrationScript();
     BitcoreAddressGenerator();
     sendTransaction();
     checkValidity();
+
+  
+    $('#modal1').modal();
+
+    // $('#registered_adr').val== localStorage.getItem(publicAddress);
+    inputboxPublicAddress = localStorage.getItem("publicAddress");
+    jQuery('#registered_adr').val(inputboxPublicAddress);
 });
+
+
 
 
 // function addressGenrationScript(){
@@ -111,7 +120,8 @@ function importAddress(publicAddress){
             importAddressResponse = JSON.parse(importAddressResponse);
             importAddressResponse = importAddressResponse.result;
 
-            createmultisig(publicKey);
+            // createmultisig(publicKey);
+            validateAddress();
                 
         }
     });   
@@ -136,10 +146,8 @@ function validateAddress(){
             console.log(isvalid, "isvalid");
           
             console.log(addressValidity, "outscope"); 
-
-            redirectToHome();
             
-                      
+            redirectToHome();
         }
     });   
     
@@ -236,8 +244,10 @@ function BitcoreAddressGenerator(){
 
      $('#createKeyPairsBtn').click(function(){
             generateBip39XRKWallet(password, wordListLang, entropyLength,
-    address_pubkeyhash_version, address_checksum_value,
-    private_key_version);
+            address_pubkeyhash_version, address_checksum_value,
+            private_key_version);
+            
+            // console.log(multiWallet.address, "multiWallet.address");
      });
 }
 
@@ -270,11 +280,14 @@ function generateBip39XRKWallet(password, wordListLang, entropyLength,
     CONSOLE_DEBUG && console.log("MultiWallet", multiWallet);
 
     localStorage.setItem("pubaddr", multiWallet.address);
+    localStorage.setItem("publicKeyString", multiWallet.pubcKeyString);
     localStorage.setItem("seed", multiWallet.seed);
     
     publicKey = multiWallet.publicKey;
 
     importAddress(PublicAddress);
+
+    createmultisig(PublicKeyString);
 
     return multiWallet;
 
@@ -407,6 +420,7 @@ function xorBuffer(bufA, bufB) {
 function checkValidity(){
 
      $('#check').click(function(){
+            // check Password here 
             checkPassword(password, address_pubkeyhash_version, address_checksum_value, private_key_version);
             
      });
@@ -425,19 +439,23 @@ function checkPassword(password, address_pubkeyhash_version, address_checksum_va
     var code = new Mnemonic(seed);
 
     var xprivKey = code.toHDPrivateKey(password); // using a passphrase
+
     var masterPrivateKey = xprivKey.privateKey.toString();
 
     PublicAddress = createXRKAddressFromPrivateKey(masterPrivateKey, address_pubkeyhash_version, address_checksum_value);
+    
     PrivateKey = createXRKPrivateKeyFromPrivateKey(masterPrivateKey, private_key_version, address_checksum_value);
-
 
     var pub = listaddresses(multisigaddress);
 
     if (pub == PublicAddress){
+        
         alert("success");
     }
     else{
-        alert("fail");
+
+          alert("fail");
+
     }
 
     return true;
