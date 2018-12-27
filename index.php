@@ -1,121 +1,158 @@
-<? php 
+<?php
 
 ?>
-
-
-
 <!DOCTYPE html>
-  <html>
-    <head>
-      <!--Import Google Icon Font-->
-      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-      <!--Import materialize.css-->
-      <link type="text/css" rel="stylesheet" href="assets/css/materialize.min.css"  media="screen,projection"/>
-      <link type="text/css" rel="stylesheet" href="assets/css/index.css"  media="screen,projection"/>
-      <!-- <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> -->
-      <!-- google font loaded here -->
-      <link href="https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>BBIT Wallet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet">
 
+    <link rel="stylesheet" type="text/css" media="screen" href="assets/css/index.css" />
+        <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-      <!--Let browser know website is optimized for mobile-->
-      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    </head>
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    
+</head>
+<body>
 
-    <body>
-     
-        <section class="navSection">
-            <nav>
-                <div class="nav-wrapper">
-                  <a href="#" class="brand-logo"></a>
-                  
-                  
-                </div>
-              </nav>
-        </section>
+<header>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+            <a class="navbar-brand" href="#">
+                <img alt="Brand" src="">
+            </a>
+            </div>
+        </div>
+    </nav>
+</header>
 
-        <section>
-            <div class="container">
-                <div class="sm-6">
-                    <div class="">
-                        <!-- <input placeholder="Enter Password" id="pass" type="text" class="validate"> -->
+<section>
+<div class="loginContainer">
+                    <div class="row positionCont">
                         
+                        <p class="font14">If you a're a new user, please click on the create BBIT wallet or BBIT MultiSig wallet button.</p>
+                        <div class="col-md-12">
+                             <button type="submit" class="createwalletBtn margintop30 btnmobilemarg testnetColor buttons" id="createkeypairsbtn1" data-toggle="modal" data-target="#myModal1">CREATE BBIT WALLET</button>
+                           
+                        </div>
+                       
+                       <div class="col-md-12">
+                            <button type="submit" class="createwalletBtn margintop30 btnmobilemarg testnetColor buttons" id="createkeypairsbtn1" data-toggle="modal" data-target="#myModal2">RESTORE BBIT WALLET</button>
+                       </div>
+                        
+                    </div>
+
+                    <div class="row margintop30 mobilemarg">
+                        <p class="font14">If you already have a BBIT wallet please enter your wallet address here. </p>
+                        <input type="text" class="registered_address logininputs inputboxes" name="registered_adr" id="registered_adr" placeholder="Enter your BBIT wallet address" value="">
+                            <div class="pretty p-svg p-curve">
+                                <input type="checkbox" class="checkboxmulti">
+                                <div class="state p-success">
+                                   
+                                    <label>It is a MultiSig Wallet</label>
+                                </div>
+                            </div>
+                            
+                        <button type="submit" class="createwalletBtn  testnetColor buttons" id="walletloginbtn">Submit</button>
+                        <div class="clearfix"> </div>
+                        <p id="restorelink1" style="margin: 25 0 -22 0;"><a data-toggle="modal" data-target="#myModal4">Forgot your BBIT Address? Click here </a></p>
 
                     </div>
                 </div>
-                <div class="sm-6">
-                    <div class="">
+</section>
 
-                    </div>
-                </div>
-            </div>
-            <div class= "container">
-              <div class="card-panel center-align">
-                <p class="gray-text text-darken-2 center-align">If you a're a new user, please click on the create BBIT wallet. </p>
-                
-                <button class="btn waves-effect waves-light modal-trigger" type="submit" name="action" href="#modal1">Create BBIT Wallet
-                  <i class="material-icons right">send</i>
-                </button>
-
-                <p class="gray-text text-darken-2 center-align">
-                   If you already have a BBIT wallet, please enter your wallet address here.
-                </p>
-
-
-                <input type="text" class="registered_address logininputs" name="registered_adr" id="registered_adr" placeholder="Enter your BBIT wallet address" value="">
-
-                <button class="btn waves-effect waves-light" type="submit" name="action">Submit
-                  <i class="material-icons right">send</i>
-                </button>
-
-              </div>
-            </div>
-             <!-- Modal Trigger -->
-            <!-- <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a> -->
-
-          <!-- Modal Structure -->
-          <div id="modal1" class="modal modal-fixed-footer">
+<section>
+<div id="myModal1" class="modal fade in" role="dialog">
+        <div class="modal-dialog">
             <div class="modal-content">
-              <h6>Create BBIT Wallet</h6>
-              <p>You may create Buybit's BBIT wallet without any password but it is highly recommended that you provide a password for additional security of your wallet.
+                <div class="modal-header">
+                    <button type="button" class="close testnetColor" data-dismiss="modal">×</button>
+                    <h4 class="modal-title ">Create BBIT Wallet</h4>
+                    <span class="standfont"></span>
+                </div>
+                <div class="modal-body " id="firststand" style="display: block;">
 
-             </p>
-             <div class="row">
-                <form class="col s12">
-                  <div class="row">
-                    <div class="input-field col s6">
-                      <input placeholder="Password" id="pass" type="text" class="validate">
-                      <label for="first_name">Password</label>
+                    <div id="fistmodbod">
+                       
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="label13"> Password </label>
+                                <input type="password" name="firstpass" class="mb20 inputboxes" placeholder="Password (optional)" id="firstpass" value="">
+                            </div>
+                            <div class="col-md-6">
+                                 <label class="label13"> Confirm Password </label>
+                                <input type="password" name="firstpass" class="mb20 inputboxes" placeholder="Confirm Password" id="confpass" value="" aria-autocomplete="list">
+                            </div>
+                            <div class="colmd-12 text-center">
+                                <button type="submit" class="createwalletBtn margintop30 testnetColor buttons" id="createXRKhd">Create BBIT Wallet</button>
+                            </div>
+                        </div> 
                     </div>
-                    <div class="input-field col s6">
-                      <input id="confirmpass" type="text" class="validate" placeholder="Confirm Password">
-                      <label for="last_name">Confirm Password (Optional)</label>
+                    
+                </div>
+                 <div class="seedcont"> <img id="printimg2" src="">  </div>
+                <div id="seedcontainer">
+                      
+                </div>
+               <!--  <p class="seedcontainer" id="seed">
+                    
+                </p> -->
+               
+
+
+                <div class="row walletcontent" id="qrcodecontainer" style="display: none;">
+                    <img src="" id="printimg">
+                    <div class="col-md-4 code1">
+                        
+                        <div id="qrcode">
+                            <p class="qrlabel">xrk-wallet-address</p>
+                        </div>
                     </div>
-                  </div>
-                  <a class="waves-effect waves-light btn-large " id="createKeyPairsBtn"><i class="material-icons left">cloud</i>Create  it</a>
-                </form>
-              </div>
+                    <div class="col-md-4 code2">
+                        
+                        <div id="qrcode6">
+                            <p class="qrlabel">xrk-wallet-public-key</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 code6">
+
+                        <div id="qrcode2">
+                            <p class="qrlabel">xrk-wallet-private-key</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <div class="" id="modaladdrcont"></div>
+                    <div>
+                        <div class="col-md-12 printcontainer">
+
+                            <a id="printWallet" value="Print" class="noprint">Print Wallet</a>
+                
+                        </div>
+                    </div>
+                </div>
+                 <a download="RecordsKeeper-wallet-key.json" id="downloadlink">Download</a>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default testnetColor" id="createKeyCloseBtn" data-dismiss="modal">Close</button>
+                </div>
             </div>
-            <div class="modal-footer">
-              <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
-            </div>
-          </div>
-        </section>
+        </div>
+    </div>
+</section>
 
 
-      <!--JavaScript at end of body for optimized loading-->
-      <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"
-        ></script>
-      <script type="text/javascript" src="assets/js/materialize.min.js"></script>
-      
-      <script src="assets/js/bitcore-lib/bitcore-lib.js"></script>
-      <script src="assets/js/bitcore-mnemonic/bitcore-mnemonic.js"></script>
-      
-      <script src ="assets/js/index.js"></script>
 
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-      <!-- <script src="bundle.js"></script> -->
-      <script src = "https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.min.js">
-      </script>
-    </body>
-  </html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- <script src="assets/js/main.js"></script> -->
+</body>
+</html>
